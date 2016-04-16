@@ -1,0 +1,31 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        config {
+            keyAlias 'ipodnotifier'
+            keyPassword 'asd123'
+            storeFile file('/Users/algavris/OneDrive/PlayStore/ipodnotifier.jks')
+            storePassword 'asd123'
+        }
+    }
+    compileSdkVersion 16
+    buildToolsVersion "23.0.2"
+    defaultConfig {
+        applicationId "ipod.anodsplace.info.ipodnotifier"
+        minSdkVersion 16
+        targetSdkVersion 16
+        versionCode 1
+        versionName "1.0"
+        signingConfig signingConfigs.config
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    productFlavors {
+    }
+}
+
