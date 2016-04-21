@@ -17,7 +17,7 @@ public class NotificationService extends Service implements NotificationReceiver
     private NotificationManager mNotificationManager;
     private NotificationReceiver mReceiver;
 
-    public static final ComponentName LinkPod = new ComponentName("com.roadrover.ipod", ".IapPlayerActivity");
+    public static final ComponentName LinkPod = new ComponentName("com.roadrover.ipod", "com.roadrover.ipod.IapPlayerActivity");
     public static boolean isRunning = false;
 
     public static Intent getIntent(Context context) {
