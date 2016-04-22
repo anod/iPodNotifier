@@ -1,5 +1,6 @@
 package ipod.anodsplace.info.ipodnotifier;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -10,6 +11,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.IBinder;
+
+import java.util.List;
 
 public class NotificationService extends Service implements NotificationReceiver.OnEventListener {
     private static final int NOTIFICATION_MEDIA_STATE = 1;
@@ -27,7 +30,7 @@ public class NotificationService extends Service implements NotificationReceiver
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        mNotification = createNotification(new TrackInfo());
+        mNotification = createNotification(new TrackInfo(), Notification.PRIORITY_MIN);
         mNotificationManager.notify(NOTIFICATION_MEDIA_STATE, mNotification);
 
         mReceiver = new NotificationReceiver(this);
@@ -58,7 +61,7 @@ public class NotificationService extends Service implements NotificationReceiver
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    private Notification createNotification(TrackInfo trackInfo) {
+    private Notification createNotification(TrackInfo trackInfo, int priority) {
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
                 Intent.makeMainActivity(LinkPod),
                 PendingIntent.FLAG_UPDATE_CURRENT
@@ -71,6 +74,7 @@ public class NotificationService extends Service implements NotificationReceiver
                 .setContentText(trackInfo.getAuthorText())
                 .setContentTitle(trackInfo.getTitleText())
                 .setLargeIcon(bitmap)
+                .setPriority(priority)
                 .setContentIntent(pi);
 
         return builder.build();
@@ -78,8 +82,21 @@ public class NotificationService extends Service implements NotificationReceiver
 
     @Override
     public void onTrackInfo(TrackInfo info) {
-        mNotification = createNotification(info);
+        int priority = isIpodAppInForeground() ? Notification.PRIORITY_MIN : Notification.PRIORITY_DEFAULT;
+        mNotification = createNotification(info, priority);
         mNotificationManager.notify(NOTIFICATION_MEDIA_STATE, mNotification);
+    }
+
+    private boolean isIpodAppInForeground() {
+        ActivityManager activityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningTaskInfo> services = activityManager.getRunningTasks(1);
+
+        if (services.get(0) == null) {
+            return false;
+        }
+
+        ActivityManager.RunningTaskInfo task = services.get(0);
+        return LinkPod.getPackageName().equals(task.topActivity.getPackageName());
     }
 
 }
